@@ -1,16 +1,16 @@
 import { Stack, createUseStyles, Text10, Text2 } from "@telefonica/mistica";
-import { useRouter } from "next/router";
 import React from "react";
 import ContentLoader from "react-content-loader";
 import Header from "../../components/header";
-import { contractualInformation } from "../../mocks/description";
 
 interface internetArrayProps {
     value: string,
     title: string
 }
 interface internetProps {
-    details: Array<internetArrayProps>,
+    callInformation: Array<internetArrayProps>,
+    internetInformation: Array<internetArrayProps>,
+    smsInformation: Array<internetArrayProps>
 }
 
 const useStyles = createUseStyles(() => ({
@@ -34,42 +34,37 @@ const useStyles = createUseStyles(() => ({
 
 export default function Internet() {
 
-    const router = useRouter();
-
-    const [isLoading, setIsLoading] = React.useState(true);
     const [data, setData] = React.useState<internetProps>();
 
+    const fetchData = async () => {
+
+        const response : any = await fetch("https://poc-mistica-br-backend.telefonicabigdata.com/mvbff/plandetails/contractual-information");
+        const responseData = await response.json();
+        setData(responseData.contractualInformation);
+
+    }
+
     React.useEffect(() => {
-        /*
-        fetch("/mvbff/plandetails/contractualinformation").
-            then(res => res.json()).
-            then((data) =>
-                setData(data.contractual_information.internet_information)
-            );
-        */
-        setData(contractualInformation.contractual_information.internet_information);
-        setIsLoading(false);
+        fetchData();
     }, [])
 
     const classes = useStyles();
 
     return (
         <>
-            {!isLoading ? (
+            {data ? (
                 <>
-                    <Header
-                        title="Internet"
-                    />
+                    <Header/>
                     <Stack
                         space={24}
                         className={classes.primeiraStack}
                     >
-                        <Text2 medium color="#595959">{data.details[0].title.toUpperCase()}</Text2>
+                        <Text2 medium color="#595959">{data.internetInformation[0].title.toUpperCase()}</Text2>
                         <Stack
                             space={8}
                             className={classes.stackPrincipal}
                         >
-                            <Text10>{data.details[0].value}</Text10>
+                            <Text10>{data.internetInformation[0].value}</Text10>
                             <Text2 regular color="#86888C">Em velocidade normal</Text2>
                         </Stack>
                     </Stack>
@@ -77,21 +72,19 @@ export default function Internet() {
                         space={24}
                         className={classes.segundaStack}
                     >
-                        <Text2 medium color="#595959">{data.details[1].title.toUpperCase()}</Text2>
+                        <Text2 medium color="#595959">{data.internetInformation[1].title.toUpperCase()}</Text2>
                         <Stack
                             space={8}
                             className={classes.stackPrincipal}
                         >
-                            <Text10>{data.details[1].value}</Text10>
+                            <Text10>{data.internetInformation[1].value}</Text10>
                             <Text2 regular color="#86888C">Em velocidade normal</Text2>
                         </Stack>
                     </Stack>
                 </>
             ) : (
                 <>
-                    <Header
-                        title="Internet"
-                    />
+                    <Header/>
                     <Stack
                         space={24}
                         className={classes.primeiraStack}

@@ -1,6 +1,5 @@
 import { Box, Divider, Row } from '@telefonica/mistica';
 import { useRouter } from 'next/router';
-
 interface RowOptionProps {
   title: string;
   divider?: boolean;

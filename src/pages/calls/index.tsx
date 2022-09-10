@@ -1,44 +1,40 @@
 import { Stack, Text1, Divider, Text2, Text3, Box } from '@telefonica/mistica';
-import { useRouter } from 'next/router';
 import React from 'react';
 import ContentLoader from 'react-content-loader';
 import Header from '../../components/header';
-import { contractualInformation } from "../../mocks/description";
 
-interface callInformationArray {
-  title: string,
-  value: string
+interface callArrayProps {
+  value: string,
+  title: string
 }
 interface callInformation {
-  call_information: {
-    details: Array<callInformationArray>
-  },
-  sms_information: {
-    details: Array<callInformationArray>
-  }
+  callInformation: Array<callArrayProps>,
+  internetInformation: Array<callArrayProps>,
+  smsInformation: Array<callArrayProps>
 }
 
 export default function Calls() {
 
-  const [isLoading, setIsLoading] = React.useState(true);
   const [data, setData] = React.useState<callInformation>();
 
+  const fetchData = async () => {
+
+    const response : any = await fetch("https://poc-mistica-br-backend.telefonicabigdata.com/mvbff/plandetails/contractual-information");
+    const responseData = await response.json();
+    setData(responseData.contractualInformation);
+
+  }
+
   React.useEffect(() => {
-    /*
-    fetch("/mvbff/plandetails/contractualinformation").
-        then(res => res.json()).
-        then((data) =>
-            setData(data.contractual_information)
-        );
-    */
-    setData(contractualInformation.contractual_information);
-    setIsLoading(false);
-  }, [])
+    if (!data) {
+      fetchData();
+    }
+  })
 
   return (
     <>
-      <Header title="Ligações e SMS" />
-      {!isLoading ? (
+      <Header />
+      {data ? (
         <Box paddingTop={32} paddingX={16}>
           <Text1 medium color="#595959">
             COBRANÇAS
@@ -48,7 +44,7 @@ export default function Calls() {
               <Text2 medium color="#595959">
                 Tipo de Cobrança
               </Text2>
-              <Text3 medium>{data.call_information.details[0].value}</Text3>
+              <Text3 medium>{data.callInformation[0].value}</Text3>
             </Stack>
           </Box>
           <Divider />
@@ -57,7 +53,7 @@ export default function Calls() {
               <Text2 medium color="#595959">
                 Tempo Inicial para tarifação
               </Text2>
-              <Text3 medium>{data.call_information.details[1].value}</Text3>
+              <Text3 medium>{data.callInformation[1].value}</Text3>
             </Stack>
           </Box>
           <Divider />
@@ -66,7 +62,7 @@ export default function Calls() {
               <Text2 medium color="#595959">
                 SMS excedentes
               </Text2>
-              <Text3 medium>{data.sms_information.details[0].value}</Text3>
+              <Text3 medium>{data.smsInformation[0].value}</Text3>
             </Stack>
           </Box>
           <Text1 medium color="#595959">
@@ -77,7 +73,7 @@ export default function Calls() {
               <Text2 medium color="#595959">
                 Locais pra Vivo Fixo
               </Text2>
-              <Text3 medium>{data.call_information.details[2].value}</Text3>
+              <Text3 medium>{data.callInformation[2].value}</Text3>
             </Stack>
           </Box>
           <Divider />
@@ -86,7 +82,7 @@ export default function Calls() {
               <Text2 medium color="#595959">
                 Locais pra outras operadoras
               </Text2>
-              <Text3 medium>{data.call_information.details[3].value}</Text3>
+              <Text3 medium>{data.callInformation[3].value}</Text3>
             </Stack>
           </Box>
           <Divider />
@@ -95,7 +91,7 @@ export default function Calls() {
               <Text2 medium color="#595959">
                 Longa distância pra Vivo Fixo/Móvel (utilizando o código 15)
               </Text2>
-              <Text3 medium>{data.call_information.details[4].value}</Text3>
+              <Text3 medium>{data.callInformation[4].value}</Text3>
             </Stack>
           </Box>
           <Divider />
@@ -105,7 +101,7 @@ export default function Calls() {
                 Longa distância pra Vivo Fixo/Móvel de outras operadoras
                 (utilizando o código 15)
               </Text2>
-              <Text3 medium>{data.call_information.details[5].value}</Text3>
+              <Text3 medium>{data.callInformation[5].value}</Text3>
             </Stack>
           </Box>
           <Divider />
@@ -114,7 +110,7 @@ export default function Calls() {
               <Text2 medium color="#595959">
                 Locais excedentes pra móvel de outras operadoras
               </Text2>
-              <Text3 medium>{data.call_information.details[6].value}</Text3>
+              <Text3 medium>{data.callInformation[6].value}</Text3>
             </Stack>
           </Box>
           <Divider />
@@ -123,7 +119,7 @@ export default function Calls() {
               <Text2 medium color="#595959">
                 Longa distância pra excedente fixo de outras operadoras
               </Text2>
-              <Text3 medium>{data.call_information.details[7].value}</Text3>
+              <Text3 medium>{data.callInformation[7].value}</Text3>
             </Stack>
           </Box>
         </Box>

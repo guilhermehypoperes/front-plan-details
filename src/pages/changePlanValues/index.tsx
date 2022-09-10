@@ -4,7 +4,7 @@ import Header from '../../components/header';
 export default function ChangePlanValues() {
   return (
     <>
-      <Header title="Alteração de valores do plano" />
+      <Header />
       <Box paddingTop={32} paddingX={16}>
         <Text5>Alteração de valores do plano</Text5>
         <Box paddingTop={24}>

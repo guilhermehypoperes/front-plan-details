@@ -1,5 +1,4 @@
 import {
-    Carousel,
     createUseStyles,
     IconDollarSymbolCircleRegular,
     IconInternetLight,
@@ -13,14 +12,16 @@ import {
     Text1,
     Text2,
     Touchable,
+    Carousel
 } from "@telefonica/mistica";
+import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import React from "react";
 import ContentLoader from "react-content-loader";
 import CardCarousel from "../components/cardCarousel";
 import Header from "../components/header";
 import Option from "../components/option";
-import OptionWithoutIcon from "../components/optionWithoutIcon";
-import {description, basicInformation} from "../mocks/description";
+import { RowOption } from "../components/rowOption";
+import {description } from "../mocks/description";
 
 const useStyles = createUseStyles(() => ({
   stackHeader: {
@@ -50,43 +51,72 @@ const useStyles = createUseStyles(() => ({
 
 interface planDetailsProps {
     title: string,
-    date_cycle_renewal: string,
-    plan_value: string,
-    data_allowance: string,
-    call_sms_tariffs: string,
-    loyalty_time: string
+    dateCycleRenewal: string,
+    planValue: string,
+    dataAllowance: string,
+    callSmsTariffs: string,
+    loyaltyTime: string
+}
+
+export interface appDescriptionProps {
+    description: string,
+    icon: string,
+    name: string,
+    url: string
+}
+
+interface relatedAppsProps {
+    included: {
+        appList: Array<appDescriptionProps>
+    },
+    unlimited: {
+        appList: Array<appDescriptionProps>
+    }
 }
 
 export default function PlanDetails() {
 
-  const [isLoading, setIsLoading] = React.useState(true);
   const [loyalty, setLoyalty] = React.useState(true);
   const [showPopover, setShowPopover] = React.useState(true);
   const [data, setData] = React.useState<planDetailsProps>();
+  const [apps, setApps] = React.useState<relatedAppsProps>();
 
   const classes = useStyles();
 
-  React.useEffect(() => {
-    /*
-    fetch("/mvbff/plandetails/basicinformation").
-        then(res => res.json()).
-        then((data) =>
-            setData(data.product_basic_information)
-        );
-    */
-    setData(basicInformation.product_basic_information);
-    setIsLoading(false);
-  }, [])
+  const fetchData = async () => {
+    const response : any = await fetch(`https://poc-mistica-br-backend.telefonicabigdata.com/mvbff/plandetails/basic-information`);
+    const responseData = await response.json();
+    setData(responseData.productBasicInformation);
+
+  }
+
+  const fetchApps = async () => {
+    const responseApps : any = await fetch('https://poc-mistica-br-backend.telefonicabigdata.com/mvbff/plandetails/related-apps');
+    const responseData = await responseApps.json();
+    setApps(responseData.relatedApps);
+  }
+
+   React.useEffect(() => {
+    if (!data) {
+        fetchData();
+    }
+   })
+
+   React.useEffect(() =>{
+    if (!apps) {
+        fetchApps();
+    }
+   })
+
 
     return (
         <>
-            {!isLoading ? (
+            {data ? (
                 <>
                     <Header
-                        title="Detalhes do plano"
                         showExtraInfo
                         extraInfoTitle={data.title}
-                        extraInfoSubtitle={`Minha internet renova em ${data.date_cycle_renewal}`}
+                        extraInfoSubtitle={`Minha internet renova em ${data.dateCycleRenewal}`}
                     />
                     <Stack
                         space={0}
@@ -95,17 +125,17 @@ export default function PlanDetails() {
                         <RowList>
                             <Row
                                 title="Valor do plano"
-                                extra={<Text2 color="#666666" regular >{data.plan_value}</Text2>}
+                                extra={<Text2 color="#666666" regular >{data.planValue}</Text2>}
                                 asset={<IconDollarSymbolCircleRegular className={classes.icon} />}
                             />
                             <Row
                                 title="Internet"
-                                extra={<Text2 color="#666666" regular >{data.data_allowance}</Text2>}
+                                extra={<Text2 color="#666666" regular >{data.dataAllowance}</Text2>}
                                 asset={<IconInternetLight className={classes.icon} />}
                             />
                             <Row
                                 title="Ligações e SMS"
-                                extra={<Text2 color="#666666" regular >{data.call_sms_tariffs}</Text2>}
+                                extra={<Text2 color="#666666" regular >{data.callSmsTariffs}</Text2>}
                                 asset={<IconMobileDeviceRegular
                                     className={classes.icon}
                                     color="#666666"
@@ -119,13 +149,13 @@ export default function PlanDetails() {
                                             <Popover
                                                 target=""
                                                 isVisible={!showPopover}
-                                                description={`Seu plano possui permanência mínima de ${data.loyalty_time}. Caso você cancele/altere seu serviço, você vai pagar pelos meses restantes. Confira o valor da cobrança em "Outras informações do plano"`}
+                                                description={`Seu plano possui permanência mínima de ${data.loyaltyTime}. Caso você cancele/altere seu serviço, você vai pagar pelos meses restantes. Confira o valor da cobrança em "Outras informações do plano"`}
                                                 onClose={() => setShowPopover(!showPopover)}
 
                                             />
                                         )}
                                     </Touchable>}
-                                extra={<Text2 color="#666666" regular >{data.loyalty_time}</Text2>}
+                                extra={<Text2 color="#666666" regular >{data.loyaltyTime}</Text2>}
                                 asset={<IconMobileQuestionRegular
                                     className={classes.icon}
                                     color="#666666"
@@ -145,17 +175,16 @@ export default function PlanDetails() {
                             ]}
                         ></Carousel>
                         <Text1 medium color="#666666">SERVIÇOS DIGITAIS</Text1>
-                        <Option title="Não gastam sua franquia" description={description[0]}/>
-                        <Option title="Inclusos no plano" description={description[1]}/>
+                        <Option title="Não gastam sua franquia" description={description[0]} apps={apps && apps.unlimited.appList} showApps/>
+                        <Option title="Inclusos no plano" description={description[1]} apps={apps && apps.included.appList} showApps/>
                         <Text1 medium color="#666666">VEJA MAIS</Text1>
-                        <OptionWithoutIcon title="Outras informações do plano"/>
-                        <OptionWithoutIcon title="Troca de plano"/>
+                        <RowOption title="Outras informações do plano" divider route="/otherContractInformation"/>
+                        <RowOption title="Troca de plano" divider route="https://web.vivo.com.br/link/change-tariff"/>
                     </Stack>
                 </>
             ) : (
                 <>
                     <Header
-                        title="Detalhes do plano"
                         showExtraInfo
                         extraInfoTitle="Vivo Controle"
                         extraInfoSubtitle=""
@@ -166,27 +195,16 @@ export default function PlanDetails() {
                         className={classes.stackHeader}
                     >
                         <RowList>
-                            <ContentLoader
-                                height={90}
-                            >
-                                <rect x="10" y="15" rx="5" ry="5" width="70" height="60" />
-                                <rect x="85" y="17" rx="4" ry="4" width="300" height="13" />
-                                <rect x="85" y="40" rx="3" ry="3" width="250" height="10" />
-                            </ContentLoader>
-                            <ContentLoader
-                                height={90}
-                            >
-                                <rect x="10" y="15" rx="5" ry="5" width="70" height="60" />
-                                <rect x="85" y="17" rx="4" ry="4" width="300" height="13" />
-                                <rect x="85" y="40" rx="3" ry="3" width="250" height="10" />
-                            </ContentLoader>
-                            <ContentLoader
-                                height={90}
-                            >
-                                <rect x="10" y="15" rx="5" ry="5" width="70" height="60" />
-                                <rect x="85" y="17" rx="4" ry="4" width="300" height="13" />
-                                <rect x="85" y="40" rx="3" ry="3" width="250" height="10" />
-                            </ContentLoader>
+                            {[0,1,2].map(item => (
+                                <ContentLoader
+                                    height={90}
+                                    key={item}
+                                >
+                                    <rect x="10" y="15" rx="5" ry="5" width="70" height="60" />
+                                    <rect x="85" y="17" rx="4" ry="4" width="300" height="13" />
+                                    <rect x="85" y="40" rx="3" ry="3" width="250" height="10" />
+                                </ContentLoader>
+                            ))}
                         </RowList>
                     </Stack>
                     <Stack
@@ -202,14 +220,32 @@ export default function PlanDetails() {
                             <rect x="15" y="60" rx="3" ry="3" width="250" height="10" />
                         </ContentLoader>
                         <Text1 medium color="#666666">SERVIÇOS DIGITAIS</Text1>
-                        <Option title="Não gastam sua franquia" description={description[0]} showApps/>
-                        <Option title="Inclusos no plano" description={description[1]} />
+                        <Option title="Não gastam sua franquia" description={description[0]} apps={apps && apps.unlimited.appList} showApps />
+                        <Option title="Inclusos no plano" description={description[1]} apps={apps && apps.included.appList} showApps/>
                         <Text1 medium color="#666666">VEJA MAIS</Text1>
-                        <OptionWithoutIcon title="Outras informações do plano"/>
-                        <OptionWithoutIcon title="Troca de plano"/>
+                        <RowOption title="Outras informações do plano" divider route="otherContractInformation"/>
+                        <RowOption title="Troca de plano" divider route="https://web.vivo.com.br/link/change-tariff"/>
                     </Stack>
                 </>
             )}
         </>
     )
 }
+
+export const getServerSideProps : GetServerSideProps = async (context : GetServerSidePropsContext) => {
+
+    const { jwk } = context.query;
+
+    const response = await fetch("https://poc-mistica-br-backend.telefonicabigdata.com/mvbff/plandetails/login", {
+        method: "POST",
+        body:JSON.stringify(jwk),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+    const data = await response.json();
+    console.log(data);
+    
+    return { props: { data } };
+    
+  }

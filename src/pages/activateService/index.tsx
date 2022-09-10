@@ -4,7 +4,7 @@ import Header from '../../components/header';
 export default function ActivateService() {
   return (
     <>
-      <Header title="Utilização e ativação do serviço" />
+      <Header />
       <Box paddingY={32} paddingX={16}>
         <Text5>Utilização e ativação do serviço</Text5>
         <Box paddingTop={24}>

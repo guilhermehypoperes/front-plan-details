@@ -4,7 +4,7 @@ import Header from '../../components/header';
 export default function NationalCoverage() {
   return (
     <>
-      <Header title="Cobertura nacional do plano" />
+      <Header/>
       <Box paddingTop={32} paddingX={16}>
         <Text5>Cobertura nacional do plano</Text5>
         <Box paddingTop={24}>

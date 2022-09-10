@@ -12,7 +12,7 @@ import { RowOption } from '../../components/rowOption';
 export default function OtherContractInformation() {
   return (
     <>
-      <Header title="Outras informações do plano" />
+      <Header />
       <Box paddingTop={32} paddingBottom={16} paddingLeft={16}>
         <Text1 medium color="#595959">
           MEUS CONTRATOS

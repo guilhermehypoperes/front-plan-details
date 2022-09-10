@@ -1,12 +1,14 @@
 import React from "react";
-import { Inline, IconAppsFilled, Text2, createUseStyles, Divider, Box, ButtonLink, Text1 } from "@telefonica/mistica";
+import { Inline, IconAppsFilled, Text2, createUseStyles, Divider, Box, ButtonLink, Text1, Image } from "@telefonica/mistica";
 import ContentLoader from "react-content-loader";
-import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
+import { appDescriptionProps } from "../../pages";
+import {IoIosArrowDown, IoIosArrowUp} from "react-icons/io";
 
 interface OptionProps {
     title: string,
     description: string,
     showApps?: boolean,
+    apps?: Array<appDescriptionProps>
 }
 
 const useStyles = createUseStyles(() => ({
@@ -17,14 +19,16 @@ const useStyles = createUseStyles(() => ({
     inline: {
         marginBottom: 10,
         width: 320
+    },
+    apps: {
+        marginTop: 16
     }
 }))
 
-export default function Option({title, description, showApps} : OptionProps) {
+export default function Option({title, description, showApps, apps} : OptionProps) {
 
     const [showAdditionalInfo, setShowAdditionalInfo] = React.useState(false);
-    const [isLoading, setIsLoading] = React.useState(true);
-    const [appsLoaded, setAppsLoaded] = React.useState(false);
+    const [appsLoaded, setAppsLoaded] = React.useState(true);
 
     const classes = useStyles();
 
@@ -58,7 +62,7 @@ export default function Option({title, description, showApps} : OptionProps) {
                         }</ButtonLink>
                     </Inline>
                 </Inline>
-                {!isLoading ? (
+                {apps ? (
                     <>
                         {showAdditionalInfo ? (
                             <>
@@ -69,7 +73,7 @@ export default function Option({title, description, showApps} : OptionProps) {
                                 >
                                     {description}
                                 </Text1>
-                                {showApps && (
+                                {showApps && apps && (
                                     <>
                                         {!appsLoaded ? (
                                             <ContentLoader
@@ -82,7 +86,20 @@ export default function Option({title, description, showApps} : OptionProps) {
                                                 <rect x="165" y="5" rx="5" ry="5" width="35" height="35" />
                                             </ContentLoader>
                                         ) : (
-                                            <></>
+                                            <>
+                                                <br/>
+                                                <Inline
+                                                    className={classes.apps}
+                                                    space={16}
+                                                >
+                                                    {apps.map(item => (
+                                                        <>
+                                                            {console.log(item.url)}
+                                                            <Image width={40} height={40} key={item.url} src={item.url} alt={item.description}/>
+                                                        </>
+                                                    ))}
+                                                </Inline>
+                                            </>
                                         )}
                                     </>
                                 )}

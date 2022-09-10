@@ -34,28 +34,55 @@ const useStyles = createUseStyles(() => ({
     paddingLeft: 10,
   },
 }));
+
+interface contractSummaryProps {
+  title: string,
+  dateCycleRenewal: string,
+  planValue: string,
+  dataAllowance: string,
+  callSmsTariffs: string,
+  loyaltyTime: string,
+  validity: string,
+  cancelInvoice: string,
+}
+
 export default function ContractSummary() {
   const router = useRouter();
 
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [data, setData] = React.useState<contractSummaryProps>();
   const [loyalty, setLoyalty] = React.useState(true);
   const [showPopover, setShowPopover] = React.useState(false);
   const classes = useStyles();
+
+  const fetchData = async () => {
+
+    const response : any = await fetch("https://poc-mistica-br-backend.telefonicabigdata.com/mvbff/plandetails/basic-information");
+    const responseData = await response.json();
+    setData(responseData.productBasicInformation);
+
+  }
+
+  React.useEffect(() => {
+    if (!data) {
+      fetchData();
+    }
+  })
+
   return (
     <>
-      <Header title="Resumo do contrato" />
+      <Header />
       <Box paddingTop={24}>
         <Box paddingX={16}>
           <Text6>Informações simplificadas, na palma da mão</Text6>
         </Box>
         <Box paddingTop={16}>
-          {!isLoading ? (
+          {data ? (
             <>
               <Row
                 title="Valor do plano"
                 extra={
                   <Text2 color="#666666" regular>
-                    R$ 54,99/mês
+                    {data.planValue}
                   </Text2>
                 }
                 asset={
@@ -72,7 +99,7 @@ export default function ContractSummary() {
                 title="Internet"
                 extra={
                   <Text2 color="#666666" regular>
-                    21GB pra usar como quiser
+                    {data.dataAllowance}
                   </Text2>
                 }
                 asset={
@@ -89,7 +116,7 @@ export default function ContractSummary() {
                 title="Ligações e SMS"
                 extra={
                   <Text2 color="#666666" regular>
-                    Ilimitado, usando o código 15
+                    {data.callSmsTariffs}
                   </Text2>
                 }
                 asset={
@@ -108,7 +135,7 @@ export default function ContractSummary() {
                     title="Vigência do contrato"
                     extra={
                       <Text2 color="#666666" regular>
-                        De 01/01/22 até 01/01/23
+                        {data.validity}
                       </Text2>
                     }
                     asset={
@@ -140,7 +167,7 @@ export default function ContractSummary() {
                     }
                     extra={
                       <Text2 color="#666666" regular>
-                        R$ 250,00
+                        {data.cancelInvoice}
                       </Text2>
                     }
                     asset={

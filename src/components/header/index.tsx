@@ -3,7 +3,6 @@ import { useRouter } from "next/router";
 import ContentLoader from "react-content-loader";
 
 interface HeaderProps {
-    title: string,
     showExtraInfo?: boolean,
     extraInfoTitle?: string,
     extraInfoSubtitle?: string,
@@ -20,7 +19,6 @@ const useStyles = createUseStyles(() => ({
 }))
 
 export default function Header({
-        title,
         showExtraInfo,
         extraInfoTitle,
         extraInfoSubtitle,
@@ -32,12 +30,6 @@ export default function Header({
 
     return (
         <>
-            <NavigationBar
-                title={title}
-                onBack={() => router.back()}
-                withBorder={true}
-                isInverse={true}
-            />
             {showExtraInfo && (
                 <Stack
                     space={16}
